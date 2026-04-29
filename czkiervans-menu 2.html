@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Czkiervan's - Order Now | Authentic Cebuano Meals</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(to bottom right, #fef3c7, #fee5e3, #fed7aa);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-bottom: 4px solid #dc2626;
+    }
+
+    .header-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      flex: 1;
+    }
+
+    .logo h1 {
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+      font-weight: 900;
+      color: #b91c1c;
+      letter-spacing: -1px;
+    }
+
+    .logo p {
+      font-size: 0.625rem;
+      color: #b45309;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .cart-btn {
+      position: relative;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 9999px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 15px rgba(220, 38, 38, 0.3);
+    }
+
+    .cart-btn:hover {
+      background: #b91c1c;
+      transform: scale(1.05);
+    }
+
+    .cart-btn:active {
+      transform: scale(0.95);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -0.5rem;
+      right: -0.5rem;
+      background: #fbbf24;
+      color: #7c2d12;
+      font-weight: 700;
+      font-size: 0.75rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    /* Cart Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .cart-modal {
+      background: white;
+      border-radius: 1rem 1rem 0 0;
+      width: 100%;
+      max-width: 28rem;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @media (min-width: 768px) {
+      .cart-modal {
+        border-radius: 1rem;
+        margin: auto;
+      }
+
+      .modal-overlay {
+        align-items: center;
+      }
+    }
+
+    .cart-header {
+      position: sticky;
+      top: 0;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 1rem 1rem 0 0;
+    }
+
+    @media (min-width: 768px) {
+      .cart-header {
+        border-radius: 1rem 1rem 0 0;
+      }
+    }
+
+    .cart-header h2 {
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      hover: background-color 0.2s;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+    }
+
+    .cart-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .cart-empty p {
+      font-size: 1.125rem;
+    }
+
+    .cart-empty p.small {
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .cart-items {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f9fafb;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid #dc2626;
+      transition: background 0.2s;
+    }
+
+    .cart-item:hover {
+      background: #f3f4f6;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 0.875rem;
+    }
+
+    .cart-item-price {
+      color: #b45309;
+      font-weight: 700;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .qty-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.25rem;
+      transition: all 0.2s;
+      font-weight: 700;
+    }
+
+    .qty-btn.minus {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .qty-btn.minus:hover {
+      background: #fecaca;
+    }
+
+    .qty-btn.plus {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .qty-btn.plus:hover {
+      background: #bbf7d0;
+    }
+
+    .qty-display {
+      font-weight: 700;
+      font-size: 1.125rem;
+      width: 2rem;
+      text-align: center;
+    }
+
+    .cart-footer {
+      border-top: 2px solid #e5e7eb;
+      padding: 1rem;
+      background: #f9fafb;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.125rem;
+      font-weight: 900;
+      color: #1f2937;
+      margin-bottom: 0.75rem;
+    }
+
+    .cart-total-amount {
+      color: #dc2626;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      border: none;
+      font-weight: 900;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 10px 15px rgba(220, 38, 38, 0.3);
+    }
+
+    .checkout-btn:hover {
+      background: linear-gradient(135deg, #b91c1c, #991b1b);
+      transform: scale(1.02);
+    }
+
+    .checkout-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* Category Filter */
+    .category-section {
+      padding: 1.5rem 1rem;
+      overflow-x: auto;
+    }
+
+    .category-scroll {
+      display: flex;
+      gap: 0.75rem;
+      width: fit-content;
+      padding: 0.5rem 0;
+    }
+
+    @media (min-width: 768px) {
+      .category-scroll {
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+    }
+
+    .category-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      transform-origin: center;
+    }
+
+    .category-btn:active {
+      transform: scale(0.95);
+    }
+
+    .category-btn.active {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      box-shadow: 0 10px 15px rgba(220, 38, 38, 0.3);
+      transform: scale(1.05);
+    }
+
+    .category-btn:not(.active) {
+      background: white;
+      color: #dc2626;
+      border: 2px solid #fcd5d5;
+    }
+
+    .category-btn:not(.active):hover {
+      border-color: #dc2626;
+    }
+
+    @media (min-width: 768px) {
+      .category-btn {
+        padding: 0.75rem 1.5rem;
+      }
+    }
+
+    /* Menu Grid */
+    .menu-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .menu-header h2 {
+      font-size: clamp(1.5rem, 5vw, 1.875rem);
+      font-weight: 900;
+      color: #1f2937;
+    }
+
+    .menu-header .category-name {
+      color: #dc2626;
+    }
+
+    .menu-content {
+      padding: 0 1rem 2rem;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 2px solid #fef3c7;
+      transition: all 0.2s;
+      transform-origin: center;
+      animation: fadeInCard 0.3s ease-out both;
+    }
+
+    .menu-card:hover {
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+      transform: scale(1.05);
+      border-color: #fca5a5;
+    }
+
+    .card-image {
+      background: linear-gradient(135deg, #fee2e2, #fef3c7);
+      padding: 1.5rem;
+      font-size: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 7rem;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .card-name {
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      height: 2.8rem;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+    }
+
+    .card-price {
+      font-size: 1.125rem;
+      font-weight: 900;
+      color: #dc2626;
+    }
+
+    .add-btn {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #78350f;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(251, 191, 36, 0.3);
+    }
+
+    .add-btn:hover {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      transform: scale(1.1);
+    }
+
+    .add-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: rgba(0, 0, 0, 0.4);
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInCard {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .header-content {
+        padding: 0.75rem;
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+
+      .cart-btn {
+        padding: 0.5rem 0.75rem;
+      }
+
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <h1>Czkiervan's</h1>
+        <p>🍛 AUTHENTIC CEBUANO MEALS</p>
+      </div>
+      <button class="cart-btn" id="cartBtn">
+        <span>🛒</span>
+        <span id="cartCount" class="cart-badge" style="display: none;">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Cart Modal -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="cart-modal">
+      <div class="cart-header">
+        <h2>Your Order</h2>
+        <button class="close-btn" id="closeCart">✕</button>
+      </div>
+
+      <div id="cartContent">
+        <div class="cart-empty">
+          <p>Your cart is empty</p>
+          <p class="small">Start adding meals! 🍽️</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Category Filter -->
+    <div class="category-section">
+      <div class="category-scroll" id="categoryScroll"></div>
+    </div>
+
+    <!-- Menu -->
+    <div class="menu-content">
+      <div class="menu-header">
+        <h2><span class="category-name" id="categoryTitle">Filipino</span> Favorites</h2>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    // Menu Data
+    const menuData = {
+      'Filipino': [
+        { id: 1, name: 'Chicken Adobo w/ Rice', price: 125, img: '🍗' },
+        { id: 2, name: 'Pork Adobo w/ Rice', price: 135, img: '🍖' },
+        { id: 3, name: 'Beef Tapa w/ Garlic Rice & Egg', price: 150, img: '🥚' },
+        { id: 4, name: 'Longganisa w/ Garlic Rice & Egg', price: 140, img: '🌶️' },
+        { id: 5, name: 'Bangus w/ Garlic Rice & Egg', price: 145, img: '🐟' },
+        { id: 6, name: 'Chicken Inasal w/ Java Rice', price: 130, img: '🔥' },
+        { id: 7, name: 'Pork BBQ Skewers w/ Rice', price: 125, img: '🍢' },
+        { id: 8, name: 'Crispy Pata w/ Rice', price: 180, img: '🍖' },
+        { id: 9, name: 'Lechon Kawali w/ Rice', price: 165, img: '🍖' },
+        { id: 10, name: 'Bicol Express w/ Rice', price: 140, img: '🌶️' },
+        { id: 11, name: 'Kare-Kare w/ Rice', price: 155, img: '🥘' },
+        { id: 12, name: 'Sinigang na Baboy w/ Rice', price: 145, img: '🥘' },
+        { id: 13, name: 'Sinigang na Hipon w/ Rice', price: 160, img: '🦐' },
+        { id: 14, name: 'Tinolang Manok w/ Rice', price: 130, img: '🍲' },
+        { id: 15, name: 'Afritada w/ Rice', price: 140, img: '🍲' },
+        { id: 16, name: 'Menudo w/ Rice', price: 135, img: '🍲' },
+        { id: 17, name: 'Caldereta w/ Rice', price: 150, img: '🥘' },
+        { id: 18, name: 'Fried Chicken Filipino Style w/ Rice', price: 140, img: '🍗' },
+        { id: 19, name: 'Daing na Bangus w/ Rice', price: 145, img: '🐟' },
+        { id: 20, name: 'Lumpiang Shanghai w/ Rice', price: 120, img: '🥟' },
+      ],
+      'Noodles': [
+        { id: 21, name: 'Pancit Canton', price: 95, img: '🍜' },
+        { id: 22, name: 'Pancit Bihon', price: 95, img: '🍜' },
+        { id: 23, name: 'Pancit Palabok', price: 110, img: '🍜' },
+        { id: 24, name: 'Lomi Noodles', price: 90, img: '🍜' },
+        { id: 25, name: 'Chicken Mami Soup', price: 100, img: '🍲' },
+        { id: 26, name: 'Beef Mami Soup', price: 110, img: '🍲' },
+        { id: 27, name: 'Batchoy', price: 105, img: '🍲' },
+        { id: 28, name: 'Ramen (Chicken)', price: 120, img: '🍜' },
+        { id: 29, name: 'Ramen (Beef)', price: 130, img: '🍜' },
+        { id: 30, name: 'Seafood Noodle Soup', price: 140, img: '🍜' },
+      ],
+      'Western': [
+        { id: 31, name: 'Classic Cheeseburger', price: 95, img: '🍔' },
+        { id: 32, name: 'Double Beef Burger', price: 140, img: '🍔' },
+        { id: 33, name: 'Chicken Burger', price: 105, img: '🍔' },
+        { id: 34, name: 'Bacon Cheeseburger', price: 125, img: '🍔' },
+        { id: 35, name: 'BBQ Burger', price: 130, img: '🍔' },
+        { id: 36, name: 'Crispy Chicken Sandwich', price: 110, img: '🥪' },
+        { id: 37, name: 'Hotdog w/ Fries', price: 75, img: '🌭' },
+        { id: 38, name: 'Clubhouse Sandwich', price: 120, img: '🥪' },
+        { id: 39, name: 'Tuna Sandwich', price: 100, img: '🥪' },
+        { id: 40, name: 'Grilled Chicken Wrap', price: 115, img: '🌯' },
+      ],
+      'Fried Specials': [
+        { id: 41, name: 'Fried Chicken (2 pcs)', price: 90, img: '🍗' },
+        { id: 42, name: 'Fried Chicken Bucket', price: 350, img: '🍗' },
+        { id: 43, name: 'Buffalo Wings', price: 120, img: '🍗' },
+        { id: 44, name: 'Garlic Parmesan Wings', price: 125, img: '🍗' },
+        { id: 45, name: 'BBQ Chicken Wings', price: 125, img: '🍗' },
+        { id: 46, name: 'Grilled Pork Belly', price: 180, img: '🍖' },
+        { id: 47, name: 'Grilled Chicken Breast', price: 135, img: '🍗' },
+        { id: 48, name: 'Mixed Grill Platter', price: 250, img: '🍖' },
+        { id: 49, name: 'Chicken Skewers', price: 110, img: '🍢' },
+        { id: 50, name: 'Pork Skewers', price: 120, img: '🍢' },
+      ],
+      'Pasta': [
+        { id: 51, name: 'Spaghetti Filipino Style', price: 100, img: '🍝' },
+        { id: 52, name: 'Carbonara', price: 130, img: '🍝' },
+        { id: 53, name: 'Bolognese Pasta', price: 125, img: '🍝' },
+        { id: 54, name: 'Garlic Shrimp Pasta', price: 145, img: '🍝' },
+        { id: 55, name: 'Alfredo Pasta', price: 130, img: '🍝' },
+        { id: 56, name: 'Mac & Cheese', price: 120, img: '🍝' },
+        { id: 57, name: 'Lasagna', price: 140, img: '🍝' },
+        { id: 58, name: 'Pesto Pasta', price: 135, img: '🍝' },
+        { id: 59, name: 'Seafood Pasta', price: 160, img: '🍝' },
+        { id: 60, name: 'Creamy Chicken Pasta', price: 140, img: '🍝' },
+      ],
+      'Rice Bowls': [
+        { id: 61, name: 'Chicken Teriyaki Bowl', price: 125, img: '🥣' },
+        { id: 62, name: 'Beef Teriyaki Bowl', price: 140, img: '🥣' },
+        { id: 63, name: 'Korean BBQ Beef Bowl', price: 150, img: '🥣' },
+        { id: 64, name: 'Sweet Chili Chicken Bowl', price: 130, img: '🥣' },
+        { id: 65, name: 'Garlic Butter Shrimp Bowl', price: 155, img: '🥣' },
+        { id: 66, name: 'Sisig Rice Bowl', price: 140, img: '🥣' },
+        { id: 67, name: 'Shanghai Rice Bowl', price: 135, img: '🥣' },
+        { id: 68, name: 'Fried Chicken Rice Bowl', price: 130, img: '🥣' },
+        { id: 69, name: 'BBQ Pork Rice Bowl', price: 135, img: '🥣' },
+        { id: 70, name: 'Vegan Veggie Rice Bowl', price: 110, img: '🥗' },
+      ],
+      'Sides': [
+        { id: 71, name: 'French Fries', price: 45, img: '🍟' },
+        { id: 72, name: 'Cheese Fries', price: 60, img: '🍟' },
+        { id: 73, name: 'Loaded Fries', price: 85, img: '🍟' },
+        { id: 74, name: 'Onion Rings', price: 55, img: '🧅' },
+        { id: 75, name: 'Mozzarella Sticks', price: 65, img: '🧀' },
+        { id: 76, name: 'Lumpiang Shanghai (solo)', price: 40, img: '🥟' },
+        { id: 77, name: 'Fresh Lumpia', price: 50, img: '🥟' },
+        { id: 78, name: 'Nachos w/ Cheese', price: 75, img: '🧀' },
+        { id: 79, name: 'Nachos w/ Beef', price: 90, img: '🌮' },
+        { id: 80, name: 'Garlic Bread', price: 40, img: '🍞' },
+      ],
+      'Pizza': [
+        { id: 81, name: 'Classic Cheese Pizza', price: 220, img: '🍕' },
+        { id: 82, name: 'Pepperoni Pizza', price: 250, img: '🍕' },
+        { id: 83, name: 'Hawaiian Pizza', price: 260, img: '🍕' },
+        { id: 84, name: 'BBQ Chicken Pizza', price: 270, img: '🍕' },
+        { id: 85, name: 'Meat Lovers Pizza', price: 290, img: '🍕' },
+        { id: 86, name: 'Veggie Pizza', price: 240, img: '🍕' },
+        { id: 87, name: 'Seafood Pizza', price: 280, img: '🍕' },
+        { id: 88, name: 'Garlic & Cheese Pizza', price: 250, img: '🍕' },
+        { id: 89, name: 'Spicy Sausage Pizza', price: 270, img: '🍕' },
+        { id: 90, name: 'Supreme Pizza', price: 300, img: '🍕' },
+      ],
+      'Drinks': [
+        { id: 91, name: 'Iced Tea', price: 30, img: '🧋' },
+        { id: 92, name: 'Lemonade', price: 35, img: '🍋' },
+        { id: 93, name: 'Soft Drinks', price: 25, img: '🥤' },
+        { id: 94, name: 'Fresh Mango Shake', price: 65, img: '🥤' },
+        { id: 95, name: 'Banana Shake', price: 60, img: '🥤' },
+        { id: 96, name: 'Avocado Shake', price: 75, img: '🥤' },
+        { id: 97, name: 'Halo-Halo', price: 80, img: '🧋' },
+        { id: 98, name: 'Buko Juice', price: 50, img: '🥥' },
+        { id: 99, name: 'Iced Coffee', price: 45, img: '☕' },
+        { id: 100, name: 'Milk Tea', price: 55, img: '🧋' },
+      ],
+      'Desserts': [
+        { id: 101, name: 'Leche Flan', price: 50, img: '🍮' },
+        { id: 102, name: 'Ube Cake', price: 60, img: '🎂' },
+        { id: 103, name: 'Chocolate Cake', price: 55, img: '🎂' },
+        { id: 104, name: 'Mango Float', price: 65, img: '🥭' },
+        { id: 105, name: 'Banana Cue', price: 40, img: '🍌' },
+        { id: 106, name: 'Turon', price: 35, img: '🥒' },
+        { id: 107, name: 'Ice Cream Sundae', price: 70, img: '🍦' },
+        { id: 108, name: 'Brownies', price: 45, img: '🍫' },
+        { id: 109, name: 'Cheesecake', price: 65, img: '🎂' },
+        { id: 110, name: 'Cassava Cake', price: 55, img: '🍰' },
+      ],
+    };
+
+    // State
+    let cart = [];
+    let activeCategory = 'Filipino';
+
+    // DOM Elements
+    const categoryScroll = document.getElementById('categoryScroll');
+    const categoryTitle = document.getElementById('categoryTitle');
+    const menuGrid = document.getElementById('menuGrid');
+    const cartBtn = document.getElementById('cartBtn');
+    const cartModal = document.getElementById('cartModal');
+    const closeCart = document.getElementById('closeCart');
+    const cartContent = document.getElementById('cartContent');
+    const cartCount = document.getElementById('cartCount');
+
+    // Initialize
+    function init() {
+      renderCategories();
+      renderMenu();
+      attachEventListeners();
+    }
+
+    // Render Categories
+    function renderCategories() {
+      categoryScroll.innerHTML = Object.keys(menuData).map(category => `
+        <button class="category-btn ${category === activeCategory ? 'active' : ''}" data-category="${category}">
+          ${category}
+        </button>
+      `).join('');
+
+      categoryScroll.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.category;
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          categoryTitle.textContent = activeCategory;
+          renderMenu();
+        });
+      });
+    }
+
+    // Render Menu
+    function renderMenu() {
+      const items = menuData[activeCategory];
+      menuGrid.innerHTML = items.map((item, idx) => `
+        <div class="menu-card" style="animation-delay: ${idx * 30}ms">
+          <div class="card-image">${item.img}</div>
+          <div class="card-content">
+            <h3 class="card-name">${item.name}</h3>
+            <div class="card-footer">
+              <span class="card-price">₱${item.price}</span>
+              <button class="add-btn" data-id="${item.id}">➕</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      menuGrid.querySelectorAll('.add-btn').forEach(btn => {
+        btn.addEventListener('click', () => addToCart(parseInt(btn.dataset.id)));
+      });
+    }
+
+    // Add to Cart
+    function addToCart(itemId) {
+      let found = false;
+      for (let category of Object.keys(menuData)) {
+        const item = menuData[category].find(i => i.id === itemId);
+        if (item) {
+          const cartItem = cart.find(c => c.id === itemId);
+          if (cartItem) {
+            cartItem.qty++;
+          } else {
+            cart.push({ ...item, qty: 1 });
+          }
+          found = true;
+          break;
+        }
+      }
+      updateCart();
+    }
+
+    // Update Cart Display
+    function updateCart() {
+      cartCount.textContent = cart.length;
+      cartCount.style.display = cart.length > 0 ? 'flex' : 'none';
+
+      if (cart.length === 0) {
+        cartContent.innerHTML = `
+          <div class="cart-empty">
+            <p>Your cart is empty</p>
+            <p class="small">Start adding meals! 🍽️</p>
+          </div>
+        `;
+      } else {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        cartContent.innerHTML = `
+          <div class="cart-items">
+            ${cart.map(item => `
+              <div class="cart-item">
+                <div class="cart-item-info">
+                  <div class="cart-item-name">${item.name}</div>
+                  <div class="cart-item-price">₱${item.price}</div>
+                </div>
+                <div class="qty-control">
+                  <button class="qty-btn minus" data-id="${item.id}">−</button>
+                  <span class="qty-display">${item.qty}</span>
+                  <button class="qty-btn plus" data-id="${item.id}">+</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="cart-footer">
+            <div class="cart-total">
+              <span>Total:</span>
+              <span class="cart-total-amount">₱${total}</span>
+            </div>
+            <button class="checkout-btn">Checkout Now</button>
+          </div>
+        `;
+
+        // Attach qty button listeners
+        cartContent.querySelectorAll('.qty-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const itemId = parseInt(btn.dataset.id);
+            const item = cart.find(c => c.id === itemId);
+            if (btn.classList.contains('minus')) {
+              item.qty--;
+              if (item.qty <= 0) {
+                cart = cart.filter(c => c.id !== itemId);
+              }
+            } else {
+              item.qty++;
+            }
+            updateCart();
+          });
+        });
+      }
+    }
+
+    // Event Listeners
+    function attachEventListeners() {
+      cartBtn.addEventListener('click', () => {
+        cartModal.classList.toggle('active');
+      });
+
+      closeCart.addEventListener('click', () => {
+        cartModal.classList.remove('active');
+      });
+
+      cartModal.addEventListener('click', (e) => {
+        if (e.target === cartModal) {
+          cartModal.classList.remove('active');
+        }
+      });
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
